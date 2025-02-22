@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Period Tracker</title>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Mono&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #7C83FD;
+            --secondary-color: #96BAFF;
+            --accent-color: #7DEDFF;
+            --background-color: #F7F7FF;
+            --text-color: #2A2A2A;
+            --danger-color: #FF6B6B;
+            --warning-color: #FFDD57;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Space Mono', monospace;
+        }
+
+        body {
+            background-color: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 5%;
+            background: white;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: var(--text-color);
+            margin-left: 2rem;
+            transition: color 0.3s ease;
+        }
+
+        .nav-links a:hover {
+            color: var(--primary-color);
+        }
+
+        .emergency-btn {
+            background: var(--danger-color);
+            color: white !important;
+            padding: 0.5rem 1rem;
+            border-radius: 25px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem 5%;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+        }
+
+        .header p {
+            font-size: 1rem;
+            color: var(--text-color);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .calendar-container {
+            display: flex;
+            overflow-x: auto;
+            gap: 2rem;
+            margin-top: 2rem;
+            padding-bottom: 2rem;
+            scroll-snap-type: x mandatory;
+        }
+
+        .month {
+            min-width: 300px;
+            background-color: white;
+            border-radius: 20px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+            padding: 2rem;
+            scroll-snap-align: start;
+            flex-shrink: 0;
+        }
+
+        .calendar-header {
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+
+        .calendar-header h3 {
+            color: var(--primary-color);
+            font-size: 1.5rem;
+        }
+
+        .calendar {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        .calendar-day {
+            aspect-ratio: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--background-color);
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .calendar-day:hover {
+            background-color: var(--secondary-color);
+            color: white;
+        }
+
+        .calendar-day.period {
+            background-color: var(--danger-color);
+            color: white;
+        }
+
+        .calendar-day.ovulation {
+            background-color: var(--accent-color);
+            color: white;
+        }
+
+        .calendar-day.fertile {
+            background-color: var(--secondary-color);
+            color: white;
+        }
+
+        .calendar-day.pre-period {
+            background-color: var(--warning-color);
+            color: white;
+        }
+
+        .calendar-day.empty {
+            background-color: transparent;
+        }
+
+        button {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 25px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        button:hover {
+            background: var(--secondary-color);
+            transform: translateY(-2px);
+        }
+
+        .legend-box {
+        position: fixed;
+        bottom: 2rem;
+        right: 2rem;
+        background: white;
+        border-radius: 10px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        padding: 0.5rem;
+        width: 300px; /* Smaller width */
+        height: 150px; /* Smaller height */
+        cursor: move;
+        font-size: 0.8rem;
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.5rem;
+    }
+
+    .legend-box h4 {
+        grid-column: span 2;
+        margin-bottom: 1rem;
+        color: var(--primary-color);
+        text-align: center;
+        font-size: 1rem;
+    }
+
+    .legend-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-around;
+        font-size: 0.8rem;
+    }
+
+    .legend-color {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        margin-right: 0.5rem;
+    }
+
+    .legend-text {
+        font-size: 0.8rem;
+    }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo">Period Tracker</div>
+        <div class="nav-links">
+            <a href="#">Home</a>
+            <a href="#">About</a>
+            <a href="#" class="emergency-btn">Emergency</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="header">
+            <h1>Period Tracker</h1>
+            <p>Keep track of your menstrual cycle and understand your body better.</p>
+        </div>
+
+        <!-- Calendar Container for All Months -->
+        <div class="calendar-container" id="calendar-container"></div>
+    </div>
+
+    <!-- Legend Box -->
+    <div class="legend-box" id="legend-box">
+        <h4>Legend</h4>
+        <div class="legend-item">
+            <div class="legend-color" style="background: var(--danger-color);"></div>
+            <div class="legend-text">Period Days</div>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color" style="background: var(--accent-color);"></div>
+            <div class="legend-text">Ovulation Day</div>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color" style="background: var(--secondary-color);"></div>
+            <div class="legend-text">Fertile Window</div>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color" style="background: var(--warning-color);"></div>
+            <div class="legend-text">Pre-Period Days</div>
+        </div>
+    </div>
+
+    <script>
+        let currentDate = new Date();
+        let cycleData = {
+            lastPeriod: new Date(currentDate.getFullYear(), currentDate.getMonth(), 1),
+            periodLength: 5,
+            cycleLength: 28,
+        };
+
+        function generateMonthCalendar(monthOffset) {
+            const monthDate = new Date(currentDate.getFullYear(), monthOffset, 1);
+            const monthName = monthDate.toLocaleString('default', { month: 'long' });
+            const monthElement = document.createElement('div');
+            monthElement.className = 'month';
+            const monthHeader = document.createElement('div');
+            monthHeader.className = 'calendar-header';
+            monthHeader.innerHTML = `<h3>${monthName} ${monthDate.getFullYear()}</h3>`;
+            monthElement.appendChild(monthHeader);
+
+            const calendar = document.createElement('div');
+            calendar.className = 'calendar';
+
+            const firstDay = new Date(monthDate.getFullYear(), monthDate.getMonth(), 1).getDay();
+            const daysInMonth = new Date(monthDate.getFullYear(), monthDate.getMonth() + 1, 0).getDate();
+
+            for (let i = 0; i < firstDay; i++) {
+                const emptyDay = document.createElement('div');
+                emptyDay.className = 'calendar-day empty';
+                calendar.appendChild(emptyDay);
+            }
+
+            for (let i = 1; i <= daysInMonth; i++) {
+                const day = document.createElement('div');
+                day.className = 'calendar-day';
+                const currentDayDate = new Date(monthDate.getFullYear(), monthDate.getMonth(), i);
+
+                day.textContent = i;
+
+                // Check for period, ovulation, and fertile days
+                if (isPeriodDay(currentDayDate)) {
+                    day.classList.add('period');
+                }
+                if (isOvulationDay(currentDayDate)) {
+                    day.classList.add('ovulation');
+                }
+                if (isFertileDay(currentDayDate)) {
+                    day.classList.add('fertile');
+                }
+                if (isPrePeriodDay(currentDayDate)) {
+                    day.classList.add('pre-period');
+                }
+
+                calendar.appendChild(day);
+            }
+
+            monthElement.appendChild(calendar);
+            return monthElement;
+        }
+
+        function isPeriodDay(date) {
+            const daysSinceLastPeriod = Math.floor((date - cycleData.lastPeriod) / (1000 * 60 * 60 * 24));
+            return daysSinceLastPeriod % cycleData.cycleLength < cycleData.periodLength;
+        }
+
+        function isOvulationDay(date) {
+            const daysSinceLastPeriod = Math.floor((date - cycleData.lastPeriod) / (1000 * 60 * 60 * 24));
+            return daysSinceLastPeriod % cycleData.cycleLength === (cycleData.cycleLength - 14); 
+        }
+
+        function isFertileDay(date) {
+            const daysSinceLastPeriod = Math.floor((date - cycleData.lastPeriod) / (1000 * 60 * 60 * 24));
+            return daysSinceLastPeriod % cycleData.cycleLength >= (cycleData.cycleLength - 15) && daysSinceLastPeriod % cycleData.cycleLength <= (cycleData.cycleLength - 10);
+        }
+
+        function isPrePeriodDay(date) {
+            const daysSinceLastPeriod = Math.floor((date - cycleData.lastPeriod) / (1000 * 60 * 60 * 24));
+            return daysSinceLastPeriod % cycleData.cycleLength >= (cycleData.cycleLength - 3);
+        }
+
+        function loadAllMonths() {
+            const container = document.getElementById('calendar-container');
+            for (let i = 0; i < 12; i++) {
+                const monthElement = generateMonthCalendar(i);
+                container.appendChild(monthElement);
+            }
+        }
+
+        loadAllMonths();
+
+        // Draggable Legend Box
+        const legendBox = document.getElementById('legend-box');
+        let offsetX = 0;
+        let offsetY = 0;
+
+        legendBox.addEventListener('mousedown', (e) => {
+            offsetX = e.clientX - legendBox.getBoundingClientRect().left;
+            offsetY = e.clientY - legendBox.getBoundingClientRect().top;
+            document.addEventListener('mousemove', moveLegendBox);
+            document.addEventListener('mouseup', stopDragging);
+        });
+
+        function moveLegendBox(e) {
+            legendBox.style.left = e.clientX - offsetX + 'px';
+            legendBox.style.top = e.clientY - offsetY + 'px';
+        }
+
+        function stopDragging() {
+            document.removeEventListener('mousemove', moveLegendBox);
+            document.removeEventListener('mouseup', stopDragging);
+        }
+    </script>
+</body>
+</html>
